@@ -1,0 +1,13 @@
+# Node
+npm-debug.log
+
+# Mac
+.DS_Store
+.log
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# IntelliJ
+.idea*
