@@ -9,16 +9,18 @@
 [color]
 	ui = auto
 [core]
-	editor = /usr/bin/vim
-	excludesFile = ~/.gitignore
+  editor = /usr/bin/vim
+  excludesFile = ~/.gitignore
 [merge]
-   tool = vim
+  tool = vim
 [mergetool "vim"]
-   cmd = vim --wait $MERGED
+  cmd = vim --wait $MERGED
 [diff]
-   tool = cursor
+  tool = cursor
 [difftool "cursor"]
-   cmd = cursor --wait --diff $LOCAL $REMOTE
+  cmd = cursor --wait --diff $LOCAL $REMOTE
+[url "ssh://git@github.com/"]
+  pushInsteadOf = https://github.com/
 [alias]
 	co = checkout
 	cob = checkout -b
