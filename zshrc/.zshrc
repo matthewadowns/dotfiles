@@ -367,3 +367,6 @@ function update_all_repos() {
 
 # Alias for convenience
 alias update-repos="update_all_repos"
+
+# Stow aliases
+alias stow="stow --ignore=.DS_Store"
