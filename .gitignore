@@ -140,3 +140,4 @@ vite.config.ts.timestamp-*
 
 # Local/private configuration files
 zshrc/.zshrc.local
+cursor/ide_state.json
