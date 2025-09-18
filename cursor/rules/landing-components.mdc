@@ -18,7 +18,9 @@ Page UI landing components follow a **shadcn-inspired** design pattern with thes
 ## Naming Conventions
 
 ### Component Names
+
 All landing components follow this strict pattern:
+
 ```typescript
 // ✅ Correct naming pattern
 export const Landing[Purpose][Variant?] = () => {}
@@ -31,7 +33,8 @@ LandingTestimonialGrid       // Layout variant
 ```
 
 ### File Organization
-```
+
+```sh
 components/landing/
 ├── [category]/              # Group by functional purpose
 │   ├── Landing[Name].tsx    # Main component
@@ -45,6 +48,7 @@ components/landing/
 ## Required Component Structure
 
 ### 1. File Header Pattern
+
 ```typescript
 'use client';  // Always first line for interactive components
 
@@ -59,6 +63,7 @@ import { ComponentName } from '@/components/shared/ui/component-name';
 ```
 
 ### 2. Props Interface Pattern
+
 **Always use inline type definitions** (not separate interfaces):
 
 ```typescript
@@ -114,6 +119,7 @@ export const LandingComponentName = ({
 ## Styling Conventions
 
 ### 1. className Assembly Pattern
+
 **Always use clsx** for conditional classes:
 
 ```typescript
@@ -140,6 +146,7 @@ export const LandingComponentName = ({
 ```
 
 ### 2. Container Structure Pattern
+
 ```typescript
 <section className="outer-section-classes">
   {/* Background effects */}
@@ -171,7 +178,9 @@ export const LandingComponentName = ({
 ```
 
 ### 3. Responsive Design Pattern
+
 Follow **mobile-first** approach:
+
 ```typescript
 // ✅ Correct responsive classes
 'w-14 h-14 shrink-0 rounded-full sm:w-16 sm:h-16 md:w-20 md:h-20'
@@ -186,6 +195,7 @@ Follow **mobile-first** approach:
 ## Content Rendering Patterns
 
 ### 1. Title/Description Component Pattern
+
 **Always provide both string and component alternatives**:
 
 ```typescript
@@ -205,6 +215,7 @@ Follow **mobile-first** approach:
 ```
 
 ### 2. Conditional Feature Rendering
+
 ```typescript
 {withAvatars ? (
   <div className="flex mb-6">
@@ -219,7 +230,9 @@ Follow **mobile-first** approach:
 ## Color System & Variants
 
 ### 1. Standard Variant System
+
 **Always support primary/secondary variants**:
+
 ```typescript
 // Background variants
 variant === 'primary' ? 'bg-primary-100/20 dark:bg-primary-900/10' : ''
@@ -231,7 +244,9 @@ variant === 'secondary' ? 'border-2 border-secondary-500' : ''
 ```
 
 ### 2. Dark Mode Support
+
 **Always include dark mode variants**:
+
 ```typescript
 'bg-primary-100/20 dark:bg-primary-900/10'
 'text-gray-700 dark:text-gray-300'
@@ -241,6 +256,7 @@ variant === 'secondary' ? 'border-2 border-secondary-500' : ''
 ## State Management Patterns
 
 ### 1. Event Handler Defaults
+
 ```typescript
 // ✅ Always provide safe defaults
 onSubmit = () => {},
@@ -252,6 +268,7 @@ onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
 ```
 
 ### 2. Boolean Flag Patterns
+
 ```typescript
 // ✅ Descriptive boolean props with defaults
 withBackground = false,
@@ -267,6 +284,7 @@ enabled = true,       // Double negative with disabled
 ## Accessibility Standards
 
 ### 1. Form Accessibility
+
 ```typescript
 <Label htmlFor="email" className="sr-only">
   {inputLabel}
@@ -282,6 +300,7 @@ enabled = true,       // Double negative with disabled
 ```
 
 ### 2. Image Accessibility
+
 ```typescript
 <Image
   src="/static/images/people/1.webp"
@@ -295,6 +314,7 @@ enabled = true,       // Double negative with disabled
 ## Performance Patterns
 
 ### 1. Import Organization
+
 ```typescript
 // External libraries first
 import clsx from 'clsx';
@@ -308,6 +328,7 @@ import { LandingNewsletterInput } from './LandingNewsletterInput';
 ```
 
 ### 2. Conditional Rendering Optimization
+
 ```typescript
 // ✅ Efficient conditional rendering
 {withBackgroundGlow ? (
@@ -325,6 +346,7 @@ import { LandingNewsletterInput } from './LandingNewsletterInput';
 ## Export Patterns
 
 ### 1. Component Exports
+
 ```typescript
 // Individual component files
 export const LandingComponentName = ({ ... }) => { ... };
@@ -335,6 +357,7 @@ export { LandingNewsletterInput } from './newsletter/LandingNewsletterInput';
 ```
 
 ### 2. Multi-Component Exports
+
 ```typescript
 // For components with multiple related exports
 export {
@@ -347,6 +370,7 @@ export {
 ## Common Anti-Patterns to Avoid
 
 ### ❌ Don't Do
+
 ```typescript
 // Missing 'use client' directive for interactive components
 // Missing default values for optional props
@@ -368,6 +392,7 @@ className={`base-class ${isActive ? 'active-class' : ''}`}
 ```
 
 ### ✅ Do This Instead
+
 ```typescript
 'use client';
 
@@ -397,6 +422,7 @@ export const LandingGoodComponent = ({
 ## Component Documentation
 
 ### JSDoc Pattern
+
 ```typescript
 /**
  * A component meant to be used in the landing page.

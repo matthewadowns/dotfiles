@@ -3,6 +3,7 @@ description: How to add or edit Cursor rules in your project
 globs:
 alwaysApply: false
 ---
+
 # Cursor Rules Management Guide
 
 ## Rule Structure Format
@@ -43,13 +44,13 @@ function badExample() {
 
 All cursor rule files **must** be placed in:
 
-```
+```sh
 PROJECT_ROOT/.cursor/rules/
 ```
 
 ### Directory Structure
 
-```
+```sh
 PROJECT_ROOT/
 ├── .cursor/
 │   └── rules/
@@ -101,6 +102,7 @@ When referencing project files in rules, use this pattern to mention other files
 ## Forbidden Locations
 
 **Never** place rule files in:
+
 - Project root directory
 - Any subdirectory outside `.cursor/rules/`
 - Component directories
@@ -110,6 +112,7 @@ When referencing project files in rules, use this pattern to mention other files
 ## Rule Categories
 
 Organize rules by purpose:
+
 - **Code Style**: `typescript-style.mdc`, `css-conventions.mdc`
 - **Architecture**: `component-patterns.mdc`, `folder-structure.mdc`
 - **Documentation**: `mdx-documentation.mdc`, `readme-format.mdc`
@@ -119,6 +122,7 @@ Organize rules by purpose:
 ## Best Practices
 
 ### Rule Creation Checklist
+
 - [ ] File placed in `.cursor/rules/` directory
 - [ ] Filename uses kebab-case with `.mdc` extension
 - [ ] Includes proper metadata section
@@ -128,6 +132,7 @@ Organize rules by purpose:
 - [ ] Follows consistent formatting
 
 ### Maintenance
+
 - **Review regularly** - Keep rules up to date with codebase changes
 - **Update examples** - Ensure code samples reflect current patterns
 - **Cross-reference** - Link related rules together
