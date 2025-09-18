@@ -87,15 +87,17 @@ autoload zmv
 ### For a full list of active aliases, run `alias`.
 
 ### Config files
-alias npmconfig="code ~/.npmrc"
-alias ohmyzsh="code ~/.oh-my-zsh"
+alias cursorsettings="cursor ~/Library/Application Support/Cursor/User/settings.json"
+alias cursorkb="cursor ~/Library/Application Support/Cursor/User/keybindings.json"
+alias npmconfig="cursor ~/.npmrc"
+alias ohmyzsh="cursor ~/.oh-my-zsh"
 alias sshconfig="code ~/.ssh/config"
 alias zshconfig="cursor ~/.zshrc"
 alias zshreload=". ~/.zshrc"
 
 ### Git / GitHub
-alias gitconfig="code ~/.gitconfig"
-alias gitignore="code ~/.gitignore"
+alias gitconfig="cursor ~/.gitconfig"
+alias gitignore="cursor ~/.gitignore"
 alias prs="gh pr list --state=open"
 alias prs-mine="gh pr list --author=@me --state=open"
 
