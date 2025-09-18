@@ -1,4 +1,3 @@
-# If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 export PATH="/usr/local/bin:$PATH:/opt/homebrew/opt/php@8.1/bin:/opt/homebrew/bin/python3:/usr/bin/java:$PATH:"
 # for BASH ($HOME/bin:$HOME/.local/bin:)
