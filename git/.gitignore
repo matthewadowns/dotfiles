@@ -11,3 +11,10 @@ Thumbs.db
 
 # IntelliJ
 .idea*
+
+# Local/private configuration files
+zshrc/.zshrc.local
+
+# Cursor
+.cursor/ide_state.json
+cursor/extensions/*

@@ -87,6 +87,8 @@ autoload zmv
 ### For a full list of active aliases, run `alias`.
 
 ### Config files
+alias cursorsettings="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/settings.json"
+alias cursorkb="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/keybindings.json"
 alias npmconfig="code ~/.npmrc"
 alias ohmyzsh="code ~/.oh-my-zsh"
 alias sshconfig="code ~/.ssh/config"
@@ -365,3 +367,6 @@ function update_all_repos() {
 
 # Alias for convenience
 alias update-repos="update_all_repos"
+
+# Stow aliases
+alias stow="stow --ignore=.DS_Store"
