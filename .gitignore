@@ -144,3 +144,4 @@ zshrc/.zshrc.local
 # Cursor
 cursor/ide_state.json
 cursor/extensions/*
+cursor/argv.json
