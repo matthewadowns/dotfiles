@@ -12,6 +12,9 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 export VISUAL="cursor"
 export EDITOR="cursor"
 
+export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+export MCP_TOOLS_PATH=/Users/mdowns/github/FileSystems/mcp-tools
+
 # Load local/private configuration if it exists
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
@@ -142,12 +145,29 @@ function repostats() {
     echo "Last commit: $(git log -1 --format=%cr)"
 }
 
-# Box-specific aliases moved to .zshrc.local
+# For secrets and Box-specific aliases use .zshrc.local
 
-
-
+# init nvm
 export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh
+# if the file exists, source it
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+# after nvm init
+autoload -U add-zsh-hook
+
+load-nvmrc() {
+  local nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [ -n "$nvmrc_path" ]; then
+    nvm install --silent
+    nvm use --silent
+  else
+    nvm use default --silent
+  fi
+}
+
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
 
 ### ZSH OPTS / DEFAULTS
 # Set name of the theme to load --- if set to "random", it will
@@ -196,7 +216,7 @@ COMPLETION_WAITING_DOTS="true"
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
 # much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
@@ -370,3 +390,4 @@ alias update-repos="update_all_repos"
 
 # Stow aliases
 alias stow="stow --ignore=.DS_Store"
+
