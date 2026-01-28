@@ -159,10 +159,10 @@ load-nvmrc() {
   local nvmrc_path="$(nvm_find_nvmrc)"
 
   if [ -n "$nvmrc_path" ]; then
-    nvm install --silent
-    nvm use --silent
+    nvm install
+    nvm use
   else
-    nvm use default --silent
+    nvm use default
   fi
 }
 
