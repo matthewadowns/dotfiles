@@ -13,7 +13,8 @@ export VISUAL="cursor"
 export EDITOR="cursor"
 
 export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
-export MCP_TOOLS_PATH=/Users/mdowns/github/FileSystems/mcp-tools
+export MCP_TOOLS_PATH=/Users/mdowns/github/mcp-tools
+export GITHUB_PATH=/Users/mdowns/github
 
 # Load local/private configuration if it exists
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
@@ -95,7 +96,7 @@ alias cursorkb="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/keyb
 alias npmconfig="code ~/.npmrc"
 alias ohmyzsh="code ~/.oh-my-zsh"
 alias sshconfig="code ~/.ssh/config"
-alias zshconfig="cursor ~/.zshrc"
+alias zshconfig="cursor ~/dotfiles.code-workspace"
 alias zshreload=". ~/.zshrc"
 
 ### Git / GitHub
@@ -105,6 +106,19 @@ alias prs="gh pr list --state=open"
 alias prs-mine="gh pr list --author=@me --state=open"
 
 # Git workflow functions
+function ghopen() {
+  local url
+  url=$(git remote get-url origin 2>/dev/null) || { echo "Not a git repo"; return 1; }
+  url="${url%.git}"
+  if [[ "$url" == git@* ]]; then
+    url="${url#git@}"
+    url="https://${url/:/\/}"
+  elif [[ "$url" != https://* && "$url" != http://* ]]; then
+    url="https://${url}"
+  fi
+  open "$url"
+}
+
 function gpr() {
     git push -u origin $(git branch --show-current)
     gh pr create --fill
@@ -147,27 +161,7 @@ function repostats() {
 
 # For secrets and Box-specific aliases use .zshrc.local
 
-# init nvm
-export NVM_DIR=~/.nvm
-# if the file exists, source it
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-# after nvm init
-autoload -U add-zsh-hook
-
-load-nvmrc() {
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    nvm install
-    nvm use
-  else
-    nvm use default
-  fi
-}
-
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
+# nvm is loaded by Oh My Zsh plugin (line 61); it handles .nvmrc auto-load on startup and chpwd
 
 ### ZSH OPTS / DEFAULTS
 # Set name of the theme to load --- if set to "random", it will
@@ -278,7 +272,7 @@ eval "$(pyenv init -)"
 
 # Function to update all GitHub repositories
 function update_all_repos() {
-    local github_dir="${1:-$HOME/github}"
+    local github_dir=$GITHUB_PATH
     local updated_count=0
     local skipped_count=0
     local error_count=0

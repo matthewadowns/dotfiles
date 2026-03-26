@@ -84,19 +84,6 @@ dist
 
 # Gatsby files
 .cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# https://nextjs.org/blog/next-9-1#public-directory-support
-# public
-
-# vuepress build output
-.vuepress/dist
-
-# vuepress v2.x temp and cache directory
-.temp
-.cache
-
-# Sveltekit cache directory
-.svelte-kit/
 
 # vitepress build output
 **/.vitepress/dist
@@ -141,7 +128,17 @@ vite.config.ts.timestamp-*
 # Local/private configuration files
 zshrc/.zshrc.local
 
-# Cursor
+# macOS
+.DS_Store
+**/*.DS_Store
+.log
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Cursor — paths under cursor/ are mostly governed by cursor/.gitignore (nested
+# rules override these). Machine-local / noisy entries:
 cursor/ide_state.json
 cursor/extensions/*
 cursor/argv.json

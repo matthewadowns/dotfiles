@@ -52,5 +52,5 @@
 	f = "!git ls-files | grep -i"
 	gr = grep -Ii
 	la = "!git config -l | grep alias | cut -c 7-"
-    gs = git status
+  gs = git status
 	logall = log --decorate --all --graph --oneline
