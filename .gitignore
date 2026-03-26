@@ -140,5 +140,9 @@ Thumbs.db
 # Cursor — paths under cursor/ are mostly governed by cursor/.gitignore (nested
 # rules override these). Machine-local / noisy entries:
 cursor/ide_state.json
-cursor/extensions/*
+cursor/extensions/
+cursor/plans/
+cursor/projects/
 cursor/argv.json
+cursor/blocklist
+cursor/unified_repo_list.json
