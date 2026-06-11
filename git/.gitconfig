@@ -56,3 +56,5 @@
 	logall = log --decorate --all --graph --oneline
 [pager]
 	branch = false
+[push]
+	autoSetupRemote = true
