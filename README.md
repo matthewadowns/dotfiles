@@ -85,6 +85,7 @@ This repo includes a [`.stowrc`](.stowrc) in the root (for example `--ignore=.DS
 | `git` | Git user config (e.g. `~/.gitconfig`, `~/.gitignore`) |
 | `profile` | Shell login profile (e.g. `~/.profile`) |
 | `claude` | [Claude Code](https://claude.ai/code): `setting.json`, `hooks/`, `commands/` |
+| `husky` | Husky v9 global hook init (`~/.config/husky/init.sh`); puts `node` on PATH for GUI git clients |
 | `anaconda`, `npm`, `nvm` | Placeholders / optional; stow only if you add files there |
 
 Stow mirrors each package’s directory tree under `-t` (usually `$HOME`). If you want Claude files under `~/.claude/` instead of loose names under `$HOME`, nest them inside a `.claude/` directory within the `claude` package.
