@@ -1,5 +1,10 @@
+eval "$(/opt/homebrew/bin/brew shellenv)"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-export PATH="/usr/local/bin:$PATH:/opt/homebrew/opt/php@8.1/bin:/opt/homebrew/bin/python3:/usr/bin/java:$PATH:"
+export PATH="/usr/local/bin:/opt/homebrew/opt/php@8.1/bin:/opt/homebrew/bin/python3:/usr/bin/java:$PATH"
 # for BASH ($HOME/bin:$HOME/.local/bin:)
 # export PATH="/opt/homebrew/opt/php@8.1/sbin:$PATH"
 
@@ -15,6 +20,7 @@ export EDITOR="cursor"
 export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
 export MCP_TOOLS_PATH=/Users/mdowns/github/mcp-tools
 export GITHUB_PATH=/Users/mdowns/github
+export GITHUB_BOX_PATH=/Users/mdowns/github/box
 
 # Load local/private configuration if it exists
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
@@ -36,6 +42,14 @@ HIST_STAMPS="mm/dd/yyyy"
 
 # fuzzy matching
 source <(fzf --zsh)
+
+# nvm (Oh My Zsh plugin): auto-switch the node version from a repo's .nvmrc.
+# These zstyles MUST be set before oh-my-zsh.sh is sourced (below). The plugin's
+# .nvmrc autoload is opt-in; without `autoload yes` it only sources nvm and never
+# registers the chpwd hook. See plugins/nvm/README.md and https://github.com/nvm-sh/nvm#zsh
+export NVM_DIR="$HOME/.nvm"
+zstyle ':omz:plugins:nvm' autoload yes
+zstyle ':omz:plugins:nvm' silent-autoload yes
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -161,7 +175,7 @@ function repostats() {
 
 # For secrets and Box-specific aliases use .zshrc.local
 
-# nvm is loaded by Oh My Zsh plugin (line 61); it handles .nvmrc auto-load on startup and chpwd
+# nvm: loaded + auto-switched by the Oh My Zsh `nvm` plugin (see zstyle config near the plugins=() array)
 
 ### ZSH OPTS / DEFAULTS
 # Set name of the theme to load --- if set to "random", it will
@@ -236,17 +250,17 @@ source $ZSH/oh-my-zsh.sh
 ## DISABLED
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-# __conda_setup="$('/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-# if [ $? -eq 0 ]; then
-#     eval "$__conda_setup"
-# else
-#     if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-#         . "/opt/anaconda3/etc/profile.d/conda.sh"
-#     else
-#         export PATH="/opt/anaconda3/bin:$PATH"
-#     fi
-# fi
-# unset __conda_setup
+__conda_setup="$('/Users/mdowns/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/mdowns/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/mdowns/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/mdowns/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
 # <<< conda initialize <<<
 
 ## Just in case -- python compiler support
@@ -261,18 +275,18 @@ source $ZSH/oh-my-zsh.sh
 # For pkg-config to find zlib you may need to set:
 #   export PKG_CONFIG_PATH="/opt/homebrew/opt/zlib/lib/pkgconfig"
 
-export PYENV_ROOT="$HOME/.pyenv"
+# export PYENV_ROOT="$HOME/.pyenv"
 
 # pyenv shim setup
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+# [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"
 ## If needed to fix python...
 # $ echo "alias pip=/usr/local/bin/pip3" >> ~/.zshrc
 # alias python=/usr/local/bin/python3
 
 # Function to update all GitHub repositories
-function update_all_repos() {
-    local github_dir=$GITHUB_PATH
+function update_repos() {
+    local github_dir=$GITHUB_BOX_PATH
     local updated_count=0
     local skipped_count=0
     local error_count=0
@@ -380,8 +394,47 @@ function update_all_repos() {
 }
 
 # Alias for convenience
-alias update-repos="update_all_repos"
+alias up-box="update_repos"
 
 # Stow aliases
 alias stow="stow --ignore=.DS_Store"
 
+# >>> socket-firewall >>>
+# Transparent Socket Firewall wrapping for package managers.
+# Installed by Iru. Do not edit this block manually.
+# Config (API key, custom registries) lives in ~/.sfw.config
+# Only wraps install-related subcommands (install, add, update, ci, etc.)
+# Bypass: SFW_BYPASS=1 npm install ...
+if command -v sfw >/dev/null 2>&1; then
+  # Remove any existing aliases that conflict with function definitions
+  unalias npm npx yarn pnpm pip pip3 uv cargo mvn gradle gem bundle dotnet 2>/dev/null || true
+
+  # Resolve pip binary before defining function (avoids bash command -v finding the function itself)
+  _sfw_pip_cmd=$(command -v pip >/dev/null 2>&1 && echo pip || echo pip3)
+
+  # JavaScript/TypeScript
+  npm()    { if [ -n "${SFW_BYPASS:-}" ]; then command npm "$@"; else case "${1:-}" in install|i|ci|add|update|upgrade) command sfw npm "$@" ;; *) command npm "$@" ;; esac; fi; }
+  npx()    { if [ -n "${SFW_BYPASS:-}" ]; then command npx "$@"; else command sfw npx "$@"; fi; }
+  yarn()   { if [ -n "${SFW_BYPASS:-}" ]; then command yarn "$@"; else case "${1:-}" in install|add|up|upgrade|dlx) command sfw yarn "$@" ;; *) command yarn "$@" ;; esac; fi; }
+  pnpm()   { if [ -n "${SFW_BYPASS:-}" ]; then command pnpm "$@"; else case "${1:-}" in install|i|add|update|upgrade|fetch|dlx) command sfw pnpm "$@" ;; *) command pnpm "$@" ;; esac; fi; }
+
+  # Python
+#   pip()    { if [ -n "${SFW_BYPASS:-}" ]; then command $_sfw_pip_cmd "$@"; else case "${1:-}" in install|download|wheel) command sfw $_sfw_pip_cmd "$@" ;; *) command $_sfw_pip_cmd "$@" ;; esac; fi; }
+  pip3()   { if [ -n "${SFW_BYPASS:-}" ]; then command pip3 "$@"; else case "${1:-}" in install|download|wheel) command sfw pip3 "$@" ;; *) command pip3 "$@" ;; esac; fi; }
+  uv()     { if [ -n "${SFW_BYPASS:-}" ]; then command uv "$@"; else case "${1:-}" in pip|add|sync|lock|install) command sfw uv "$@" ;; *) command uv "$@" ;; esac; fi; }
+
+  # Rust
+  cargo()  { if [ -n "${SFW_BYPASS:-}" ]; then command cargo "$@"; else case "${1:-}" in install|add|update|fetch) command sfw cargo "$@" ;; *) command cargo "$@" ;; esac; fi; }
+
+  # Java/Scala/Kotlin
+  mvn()    { if [ -n "${SFW_BYPASS:-}" ]; then command mvn "$@"; else command sfw mvn "$@"; fi; }
+  gradle() { if [ -n "${SFW_BYPASS:-}" ]; then command gradle "$@"; else command sfw gradle "$@"; fi; }
+
+  # Ruby
+  gem()    { if [ -n "${SFW_BYPASS:-}" ]; then command gem "$@"; else case "${1:-}" in install|update) command sfw gem "$@" ;; *) command gem "$@" ;; esac; fi; }
+  bundle() { if [ -n "${SFW_BYPASS:-}" ]; then command bundle "$@"; else case "${1:-}" in install|update|add) command sfw bundle "$@" ;; *) command bundle "$@" ;; esac; fi; }
+
+  # .NET
+  dotnet() { if [ -n "${SFW_BYPASS:-}" ]; then command dotnet "$@"; else case "${1:-}" in add|restore) command sfw dotnet "$@" ;; *) command dotnet "$@" ;; esac; fi; }
+fi
+# <<< socket-firewall <<<
