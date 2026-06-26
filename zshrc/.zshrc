@@ -296,6 +296,40 @@ function update_repos() {
     local error_repos=()
     local blocked_repo_paths=()
 
+    _update_repos_is_ds_store_path() {
+        local base=${1:t}
+        [[ "$base" == .DS_Store || "$base" == '.DS_Store?' ]]
+    }
+
+    _update_repos_clean_ds_store_only() {
+        local repo_path=$1
+        local files=() f
+
+        cd "$repo_path" || return 1
+
+        files=("${(@f)$(git diff HEAD --name-only 2>/dev/null)}")
+        files+=("${(@f)$(git diff --cached --name-only 2>/dev/null)}")
+        files+=("${(@f)$(git ls-files --others --exclude-standard 2>/dev/null)}")
+        files=(${(u)files})
+        files=(${files:#})
+
+        (( ${#files[@]} > 0 )) || return 1
+
+        for f in "${files[@]}"; do
+            _update_repos_is_ds_store_path "$f" || return 1
+        done
+
+        for f in "${files[@]}"; do
+            if git ls-files --error-unmatch "$f" &>/dev/null; then
+                git restore --staged --worktree -- "$f" 2>/dev/null
+            else
+                rm -f -- "$f"
+            fi
+        done
+
+        git diff --quiet && git diff --cached --quiet && [[ -z "$(git status --porcelain)" ]]
+    }
+
     _update_repos_show_changes() {
         local repo_path=$1
         local org_name=$2
@@ -353,6 +387,13 @@ function update_repos() {
             skipped_repos+=("$org_name/$repo_name (failed to change directory)")
             continue
         }
+
+        # Drop .DS_Store-only noise (often tracked by others despite global gitignore)
+        if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git status --porcelain)" ]; then
+            if _update_repos_clean_ds_store_only "$repo_path"; then
+                echo "   🧹 Dropped local .DS_Store changes; continuing..."
+            fi
+        fi
 
         # Check if there are local changes
         if ! git diff --quiet || ! git diff --cached --quiet; then
