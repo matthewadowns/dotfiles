@@ -105,7 +105,9 @@ autoload zmv
 ### For a full list of active aliases, run `alias`.
 
 ### Config files
+alias cursorconfig="open -a 'Cursor' ~/.cursor/cli-config.json"
 alias cursorsettings="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/settings.json"
+alias cursorsettings2="open -a 'Cursor' /Users/mdowns/Library/Application Support/Cursor/User/settings.json"
 alias cursorkb="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/keybindings.json"
 alias npmconfig="code ~/.npmrc"
 alias ohmyzsh="code ~/.oh-my-zsh"
@@ -292,12 +294,50 @@ function update_repos() {
     local error_count=0
     local skipped_repos=()
     local error_repos=()
+    local blocked_repo_paths=()
+
+    _update_repos_show_changes() {
+        local repo_path=$1
+        local org_name=$2
+        local repo_name=$3
+        local modified_files untracked_files shortstat
+
+        (
+            cd "$repo_path" || return 1
+
+            modified_files=("${(@f)$(git diff HEAD --name-only 2>/dev/null)}")
+            modified_files=(${modified_files:#})
+            shortstat=$(git diff HEAD --shortstat 2>/dev/null | sed 's/^[[:space:]]*//')
+            untracked_files=("${(@f)$(git ls-files --others --exclude-standard 2>/dev/null)}")
+            untracked_files=(${untracked_files:#})
+
+            echo ""
+            echo "   • $org_name/$repo_name"
+
+            if (( ${#modified_files[@]} > 0 )); then
+                echo "     Changed files:"
+                for f in "${modified_files[@]}"; do
+                    echo "       - $f"
+                done
+                if [[ -n "$shortstat" ]]; then
+                    echo "     Diff size: $shortstat"
+                fi
+            fi
+
+            if (( ${#untracked_files[@]} > 0 )); then
+                echo "     Untracked files:"
+                for f in "${untracked_files[@]}"; do
+                    echo "       - $f"
+                done
+            fi
+        )
+    }
 
     echo "🔄 Starting repository updates in: $github_dir"
     echo "================================================"
 
-    # Find all git repositories recursively
-    find "$github_dir" -type d -name ".git" | while read -r git_dir; do
+    # Process substitution avoids a subshell so counters/arrays survive the loop
+    while read -r git_dir; do
         local repo_path=$(dirname "$git_dir")
         local repo_name=$(basename "$repo_path")
         local org_name=$(basename "$(dirname "$repo_path")")
@@ -319,6 +359,7 @@ function update_repos() {
             echo "   ⏭️  Skipping: Local changes detected"
             ((skipped_count++))
             skipped_repos+=("$org_name/$repo_name (local changes)")
+            blocked_repo_paths+=("$repo_path")
             continue
         fi
 
@@ -327,6 +368,7 @@ function update_repos() {
             echo "   ⏭️  Skipping: Working directory not clean"
             ((skipped_count++))
             skipped_repos+=("$org_name/$repo_name (working directory not clean)")
+            blocked_repo_paths+=("$repo_path")
             continue
         fi
 
@@ -365,7 +407,7 @@ function update_repos() {
             ((error_count++))
             error_repos+=("$org_name/$repo_name (failed to pull changes)")
         fi
-    done
+    done < <(find "$github_dir" -type d -name ".git")
 
     echo ""
     echo "================================================"
@@ -380,6 +422,17 @@ function update_repos() {
         echo "⏭️  Skipped Repositories:"
         for repo in "${skipped_repos[@]}"; do
             echo "   • $repo"
+        done
+    fi
+
+    # Show file list and diff size for repos blocked by local changes
+    if [ ${#blocked_repo_paths[@]} -gt 0 ]; then
+        echo ""
+        echo "📋 Local changes (could not pull):"
+        for repo_path in "${blocked_repo_paths[@]}"; do
+            local org_name=$(basename "$(dirname "$repo_path")")
+            local repo_name=$(basename "$repo_path")
+            _update_repos_show_changes "$repo_path" "$org_name" "$repo_name"
         done
     fi
 
@@ -438,3 +491,9 @@ if command -v sfw >/dev/null 2>&1; then
   dotnet() { if [ -n "${SFW_BYPASS:-}" ]; then command dotnet "$@"; else case "${1:-}" in add|restore) command sfw dotnet "$@" ;; *) command dotnet "$@" ;; esac; fi; }
 fi
 # <<< socket-firewall <<<
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/mdowns/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
