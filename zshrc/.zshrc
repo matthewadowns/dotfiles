@@ -18,7 +18,6 @@ export VISUAL="cursor"
 export EDITOR="cursor"
 
 export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
-export MCP_TOOLS_PATH=/Users/mdowns/github/mcp-tools
 export GITHUB_PATH=/Users/mdowns/github
 export GITHUB_BOX_PATH=/Users/mdowns/github/box
 
@@ -546,3 +545,9 @@ if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/User
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+# harness-aidlc-agent
+export PATH="/Users/mdowns/.harness-aidlc-agent/bin:$PATH"
+
+# Added by git-ai installer on Wed Jul 29 10:06:04 PDT 2026
+export PATH="/Users/mdowns/.git-ai/bin:$PATH"
