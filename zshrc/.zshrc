@@ -413,34 +413,42 @@ function update_repos() {
             continue
         fi
 
-        # Determine main branch (main or master)
-        local main_branch=""
+        # Prefer main/master/dev; otherwise pull whatever branch we're on
+        local target_branch=""
+        local use_current_branch=0
+
         if git show-ref --verify --quiet refs/heads/main; then
-            main_branch="main"
+            target_branch="main"
         elif git show-ref --verify --quiet refs/heads/master; then
-            main_branch="master"
+            target_branch="master"
         elif git show-ref --verify --quiet refs/heads/dev; then
-            main_branch="dev"
+            target_branch="dev"
         else
-            echo "   ❌ No main, dev, or master branch found"
-            ((error_count++))
-            error_repos+=("$org_name/$repo_name (no main/dev/master branch)")
-            continue
+            target_branch=$(git branch --show-current)
+            if [[ -z "$target_branch" ]]; then
+                echo "   ⏭️  Skipping: not on a named branch"
+                ((skipped_count++))
+                skipped_repos+=("$org_name/$repo_name (detached HEAD)")
+                continue
+            fi
+            use_current_branch=1
         fi
 
-        echo "   🌿 Switching to $main_branch branch"
-
-        # Switch to main branch
-        if ! git checkout "$main_branch" >/dev/null 2>&1; then
-            echo "   ❌ Failed to checkout $main_branch"
-            ((error_count++))
-            error_repos+=("$org_name/$repo_name (failed to checkout $main_branch)")
-            continue
+        if (( use_current_branch )); then
+            echo "   🌿 Pulling current branch: $target_branch"
+        else
+            echo "   🌿 Switching to $target_branch branch"
+            if ! git checkout "$target_branch" >/dev/null 2>&1; then
+                echo "   ❌ Failed to checkout $target_branch"
+                ((error_count++))
+                error_repos+=("$org_name/$repo_name (failed to checkout $target_branch)")
+                continue
+            fi
         fi
 
         # Pull latest changes
         echo "   ⬇️  Pulling latest changes..."
-        if git pull origin "$main_branch" >/dev/null 2>&1; then
+        if git pull origin "$target_branch" >/dev/null 2>&1; then
             echo "   ✅ Successfully updated"
             ((updated_count++))
         else
