@@ -1,0 +1,19 @@
+zshrc/.zshrc
+  s_57a4a2f746121f::t_b00de7f246011b 416-419,421,423,425,427-434,437-446,451
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "8849cb68ac227a300e049b6a982fed8cdfc0340b",
+  "prompts": {},
+  "sessions": {
+    "s_57a4a2f746121f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "12f0de12-a166-4028-b9f3-63ae425f9eb4",
+        "model": "composer-2.5"
+      },
+      "human_author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
