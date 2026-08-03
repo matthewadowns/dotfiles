@@ -1,0 +1,14 @@
+husky/.config/husky/init.sh
+  h_9d7341c0b6ca53 23-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "ede83e83023724ae6d48f084e29f1289cb098ecb",
+  "prompts": {},
+  "humans": {
+    "h_9d7341c0b6ca53": {
+      "author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
