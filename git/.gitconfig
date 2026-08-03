@@ -62,3 +62,6 @@
 	directory = *
 [init]
 	templateDir = /Users/mdowns/.sei/git-templates
+[trace2]
+	eventTarget = af_unix:stream:/Users/mdowns/.git-ai/internal/daemon/trace2.sock
+	eventNesting = 0
