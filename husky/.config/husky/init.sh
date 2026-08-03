@@ -20,11 +20,9 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
   fi
 fi
 
-# Fallback: if nvm didn't put a node on PATH, use Homebrew's (omitted from the
-# GUI client's PATH because path_helper never runs for GUI apps).
-if ! command -v node >/dev/null 2>&1; then
-  case ":$PATH:" in
-    *":/opt/homebrew/bin:"*) ;;
-    *) export PATH="/opt/homebrew/bin:$PATH" ;;
-  esac
-fi
+# Always add Homebrew to PATH (omitted from GUI client's PATH because path_helper
+# never runs for GUI apps). Required for Corepack-managed binaries like yarn.
+case ":$PATH:" in
+  *":/opt/homebrew/bin:"*) ;;
+  *) export PATH="/opt/homebrew/bin:$PATH" ;;
+esac
