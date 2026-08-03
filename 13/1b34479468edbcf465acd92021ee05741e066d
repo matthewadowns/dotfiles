@@ -1,0 +1,19 @@
+git/.gitconfig
+  s_57a4a2f746121f::t_a30e1c40e18387 65-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "131b34479468edbcf465acd92021ee05741e066d",
+  "prompts": {},
+  "sessions": {
+    "s_57a4a2f746121f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "12f0de12-a166-4028-b9f3-63ae425f9eb4",
+        "model": "composer-2.5"
+      },
+      "human_author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
