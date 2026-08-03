@@ -60,3 +60,5 @@
 	autoSetupRemote = true
 [safe]
 	directory = *
+[init]
+	templateDir = /Users/mdowns/.sei/git-templates
