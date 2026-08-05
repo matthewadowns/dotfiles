@@ -1,0 +1,19 @@
+zshrc/.zshrc
+  s_f7098aa50ec02e::t_4b7c2785907ad7 6-8,18,549-550
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "1690d599fc89f0f4c4d4b1c0761f36631ae38690",
+  "prompts": {},
+  "sessions": {
+    "s_f7098aa50ec02e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "1c704804-e736-4f50-a9d0-588fa06f7f14",
+        "model": "auto-smart"
+      },
+      "human_author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
