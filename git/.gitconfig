@@ -62,8 +62,10 @@
 	directory = *
 [init]
 	templateDir = /Users/mdowns/.sei/git-templates
+[pull]
+	ff = only
 [trace2]
 	eventTarget = af_unix:stream:/Users/mdowns/.git-ai/internal/daemon/trace2.sock
 	eventNesting = 0
-[pull]
-	ff = only
+[submodule]
+	recurse = true
