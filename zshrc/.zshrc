@@ -288,6 +288,7 @@ unset __conda_setup
 # Function to update all GitHub repositories
 function update_repos() {
     local github_dir=$GITHUB_BOX_PATH
+    local start_dir=$PWD
     local updated_count=0
     local skipped_count=0
     local error_count=0
@@ -492,6 +493,8 @@ function update_repos() {
             echo "   • $repo"
         done
     fi
+
+    cd "$start_dir"
 }
 
 # Alias for convenience
