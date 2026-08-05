@@ -3,10 +3,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-export PATH="/usr/local/bin:/opt/homebrew/opt/php@8.1/bin:/opt/homebrew/bin/python3:/usr/bin/java:$PATH"
-# for BASH ($HOME/bin:$HOME/.local/bin:)
-# export PATH="/opt/homebrew/opt/php@8.1/sbin:$PATH"
+# User PATH (keep additions here — avoid scattering export PATH=… later)
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$HOME/bin:$HOME/.local/bin:$BUN_INSTALL/bin:/usr/local/bin:/opt/homebrew/opt/php@8.1/bin:/opt/homebrew/bin/python3:/usr/bin/java:$HOME/.harness-aidlc-agent/bin:$HOME/.git-ai/bin:$PATH"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -16,6 +15,7 @@ export JAVA_HOME="/usr/bin"
 export BASH_SILENCE_DEPRECATION_WARNING=1
 export VISUAL="cursor"
 export EDITOR="cursor"
+export BROWSER=open  # Conduit identity_login / macOS browser opener
 
 export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
 export GITHUB_PATH=/Users/mdowns/github
@@ -546,8 +546,5 @@ if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/User
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
-# harness-aidlc-agent
-export PATH="/Users/mdowns/.harness-aidlc-agent/bin:$PATH"
-
-# Added by git-ai installer on Wed Jul 29 10:06:04 PDT 2026
-export PATH="/Users/mdowns/.git-ai/bin:$PATH"
+# bun completions (BUN_INSTALL + PATH set near top of this file)
+[ -s "/Users/mdowns/.bun/_bun" ] && source "/Users/mdowns/.bun/_bun"
