@@ -1,0 +1,14 @@
+git/.gitconfig
+  h_9d7341c0b6ca53 65-66,70-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "265f3b950dd650b6bb889cc7e8606d290ad2c680",
+  "prompts": {},
+  "humans": {
+    "h_9d7341c0b6ca53": {
+      "author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
