@@ -446,9 +446,9 @@ function update_repos() {
             fi
         fi
 
-        # Pull latest changes
+        # Pull latest changes (show git output, then per-repo status)
         echo "   ⬇️  Pulling latest changes..."
-        if git pull origin "$target_branch" >/dev/null 2>&1; then
+        if git pull origin "$target_branch"; then
             echo "   ✅ Successfully updated"
             ((updated_count++))
         else
