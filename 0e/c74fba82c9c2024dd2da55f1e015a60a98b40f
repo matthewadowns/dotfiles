@@ -1,0 +1,28 @@
+zshrc/.zshrc
+  s_57a4a2f746121f::t_df123935402798 292-295
+  s_57a4a2f746121f::t_4bee180719cf24 307-316
+  s_57a4a2f746121f::t_8a849d75e5ebcc 439-448,466-470
+  s_57a4a2f746121f::t_1f0a7fd1da50a8 317
+  s_57a4a2f746121f::t_25924f455b8304 586-590
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "0ec74fba82c9c2024dd2da55f1e015a60a98b40f",
+  "prompts": {},
+  "humans": {
+    "h_9d7341c0b6ca53": {
+      "author": "Matthew Downs <mdowns@box.com>"
+    }
+  },
+  "sessions": {
+    "s_57a4a2f746121f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "12f0de12-a166-4028-b9f3-63ae425f9eb4",
+        "model": "composer-2.5"
+      },
+      "human_author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
