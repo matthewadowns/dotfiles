@@ -1,0 +1,24 @@
+zshrc/.zshrc
+  s_57a4a2f746121f::t_005c3525d7218d 111-114,117-120,122-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ceca482a8140684a2702b278387d524805e5883b",
+  "prompts": {},
+  "humans": {
+    "h_9d7341c0b6ca53": {
+      "author": "Matthew Downs <mdowns@box.com>"
+    }
+  },
+  "sessions": {
+    "s_57a4a2f746121f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "12f0de12-a166-4028-b9f3-63ae425f9eb4",
+        "model": "unknown"
+      },
+      "human_author": "Matthew Downs <mdowns@box.com>"
+    }
+  }
+}
