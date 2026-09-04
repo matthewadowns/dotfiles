@@ -108,15 +108,19 @@ alias cursorconfig="open -a 'Cursor' ~/.cursor/cli-config.json"
 alias cursorsettings="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/settings.json"
 alias cursorsettings2="open -a 'Cursor' /Users/mdowns/Library/Application Support/Cursor/User/settings.json"
 alias cursorkb="open -a 'Cursor' ~/Library/Application\ Support/Cursor/User/keybindings.json"
-alias npmconfig="code ~/.npmrc"
-alias ohmyzsh="code ~/.oh-my-zsh"
-alias sshconfig="code ~/.ssh/config"
-alias zshconfig="cursor ~/dotfiles.code-workspace"
+alias npmconfig="cursor ~/.npmrc --classic"
+alias ohmyzsh="cursor ~/.oh-my-zsh --classic"
+alias sshconfig="cursor ~/.ssh/config --classic"
+alias zshconfig="cursor ~/dotfiles.code-workspace --classic"
 alias zshreload=". ~/.zshrc"
 
+## Manage MacOS Spotlight Index
+alias reindex="sudo mdutil -E /"
+alias deepindex="sudo mdutil -i off / && sudo rm -rf /.Spotlight-V100 / && sudo mdutil -i on / && sudo mdutil -E /"
+
 ### Git / GitHub
-alias gitconfig="code ~/.gitconfig"
-alias gitignore="code ~/.gitignore"
+alias gitconfig="cursor ~/.gitconfig --classic"
+alias gitignore="cursor ~/.gitignore --classic"
 alias prs="gh pr list --state=open"
 alias prs-mine="gh pr list --author=@me --state=open"
 
