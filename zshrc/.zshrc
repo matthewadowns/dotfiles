@@ -289,6 +289,10 @@ unset __conda_setup
 # $ echo "alias pip=/usr/local/bin/pip3" >> ~/.zshrc
 # alias python=/usr/local/bin/python3
 
+# Repos where update_repos pulls the current branch without checking out main/master/dev.
+# Match by repo name (skynet-docs) or org/repo (box/skynet-docs). Override in ~/.zshrc.local.
+typeset -ga UPDATE_REPOS_BRANCH_EXCEPTIONS=(skynet-docs)
+
 # Function to update all GitHub repositories
 function update_repos() {
     local github_dir=$GITHUB_BOX_PATH
@@ -299,6 +303,17 @@ function update_repos() {
     local skipped_repos=()
     local error_repos=()
     local blocked_repo_paths=()
+
+    _update_repos_is_branch_exception() {
+        local org_name=$1 repo_name=$2 key candidate
+
+        for key in "$repo_name" "$org_name/$repo_name"; do
+            for candidate in "${UPDATE_REPOS_BRANCH_EXCEPTIONS[@]}"; do
+                [[ "$key" == "$candidate" ]] && return 0
+            done
+        done
+        return 1
+    }
 
     _update_repos_is_ds_store_path() {
         local base=${1:t}
@@ -421,7 +436,16 @@ function update_repos() {
         local target_branch=""
         local use_current_branch=0
 
-        if git show-ref --verify --quiet refs/heads/main; then
+        if _update_repos_is_branch_exception "$org_name" "$repo_name"; then
+            target_branch=$(git branch --show-current)
+            if [[ -z "$target_branch" ]]; then
+                echo "   ⏭️  Skipping: not on a named branch"
+                ((skipped_count++))
+                skipped_repos+=("$org_name/$repo_name (detached HEAD)")
+                continue
+            fi
+            use_current_branch=1
+        elif git show-ref --verify --quiet refs/heads/main; then
             target_branch="main"
         elif git show-ref --verify --quiet refs/heads/master; then
             target_branch="master"
@@ -439,7 +463,11 @@ function update_repos() {
         fi
 
         if (( use_current_branch )); then
-            echo "   🌿 Pulling current branch: $target_branch"
+            if _update_repos_is_branch_exception "$org_name" "$repo_name"; then
+                echo "   🌿 Keeping current branch: $target_branch (exception)"
+            else
+                echo "   🌿 Pulling current branch: $target_branch"
+            fi
         else
             echo "   🌿 Switching to $target_branch branch"
             if ! git checkout "$target_branch" >/dev/null 2>&1; then
@@ -555,3 +583,8 @@ if [ -f '/Users/mdowns/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . 
 
 # bun completions (BUN_INSTALL + PATH set near top of this file)
 [ -s "/Users/mdowns/.bun/_bun" ] && source "/Users/mdowns/.bun/_bun"
+
+# Added by git-ai installer on Mon Aug 10 12:57:24 PDT 2026
+export PATH="/Users/mdowns/.git-ai/bin:$PATH"
+alias lctl="DISABLE_LATEST_CHECK=1 NODE_PATH=/Users/mdowns/github/box/legion-mono/dist/packages /Users/mdowns/github/box/legion-mono/dist/packages/@legion-build/legionctl/bin/run"
+alias lctl-dev="DISABLE_LATEST_CHECK=1 NODE_PATH=/Users/mdowns/github/box/legion-mono/dist/packages /Users/mdowns/github/box/legion-mono/packages/@legion-build/legionctl/bin/dev"
