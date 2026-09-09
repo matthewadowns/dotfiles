@@ -66,6 +66,7 @@ plugins=(
     docker
     dotenv
     git
+    gitfast
     gh
     history
     kubectl
@@ -146,6 +147,270 @@ function gpr() {
 function gsync() {
     git fetch origin
     git rebase origin/$(git branch --show-current)
+}
+
+# Stash unstaged work, update main, cut a new branch, and re-apply the stash.
+# Usage: gcutbranch <new-branch-name>
+function gcutbranch() {
+    local branch_name=$1
+    local start_dir=$PWD repo_root main_branch from_branch stash_msg stash_ref apply_status
+    local -a unstaged_files conflicted
+    local choice f
+
+    _gcutbranch_resolve_conflicts() {
+        while true; do
+            conflicted=("${(@f)$(git diff --name-only --diff-filter=U 2>/dev/null)}")
+            conflicted=(${conflicted:#})
+            (( ${#conflicted[@]} > 0 )) || return 0
+
+            echo ""
+            echo "⚠️  Merge conflicts (${#conflicted[@]} file(s)):"
+            for f in "${conflicted[@]}"; do
+                echo "   • $f"
+            done
+            echo ""
+            echo "  [a] Keep your stashed changes for ALL (apply on top of main)"
+            echo "  [m] Keep main version for ALL"
+            echo "  [f] Choose per file (stash / main / edit)"
+            echo "  [e] Open all conflicted files in \$EDITOR (${EDITOR:-cursor})"
+            echo "  [q] Quit — resolve manually (stash kept at $stash_ref)"
+            read "choice?Choose: "
+
+            case "$choice" in
+                a|A)
+                    git checkout --theirs -- "${conflicted[@]}" \
+                        && git add -- "${conflicted[@]}" \
+                        && git reset HEAD -- "${conflicted[@]}"
+                    ;;
+                m|M)
+                    git checkout --ours -- "${conflicted[@]}" \
+                        && git add -- "${conflicted[@]}" \
+                        && git reset HEAD -- "${conflicted[@]}"
+                    ;;
+                f|F)
+                    for f in "${conflicted[@]}"; do
+                        [[ -z "$f" ]] && continue
+                        echo ""
+                        echo "File: $f"
+                        echo "  [s] stash  [m] main  [e] edit  [k] skip"
+                        read "choice?Choose: "
+                        case "$choice" in
+                            s|S)
+                                git checkout --theirs -- "$f" \
+                                    && git add -- "$f" \
+                                    && git reset HEAD -- "$f"
+                                ;;
+                            m|M)
+                                git checkout --ours -- "$f" \
+                                    && git add -- "$f" \
+                                    && git reset HEAD -- "$f"
+                                ;;
+                            e|E)
+                                ${EDITOR:-cursor} "$f"
+                                git add -- "$f" && git reset HEAD -- "$f"
+                                ;;
+                            k|K) ;;
+                            *) echo "Skipped $f" ;;
+                        esac
+                    done
+                    ;;
+                e|E)
+                    for f in "${conflicted[@]}"; do
+                        [[ -n "$f" ]] && ${EDITOR:-cursor} "$f"
+                    done
+                    echo "Mark resolved files with: git add <file>"
+                    read "?Press enter when finished editing..."
+                    ;;
+                q|Q)
+                    return 1
+                    ;;
+                *)
+                    echo "Invalid choice"
+                    ;;
+            esac
+        done
+    }
+
+    if [[ -z "$branch_name" ]]; then
+        echo "Usage: gcutbranch <new-branch-name>"
+        return 1
+    fi
+
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "Not a git repository"
+        return 1
+    }
+    cd "$repo_root" || return 1
+
+    if git diff --cached --quiet; then
+        :
+    else
+        echo "Staged changes detected — commit or unstage them first."
+        cd "$start_dir"
+        return 1
+    fi
+
+    unstaged_files=("${(@f)$(git diff --name-only)}")
+    unstaged_files=(${unstaged_files:#})
+    if (( ${#unstaged_files[@]} == 0 )); then
+        echo "No unstaged changes to move."
+        cd "$start_dir"
+        return 1
+    fi
+
+    if git show-ref --verify --quiet refs/heads/main; then
+        main_branch=main
+    elif git show-ref --verify --quiet refs/heads/master; then
+        main_branch=master
+    else
+        echo "No main or master branch found."
+        cd "$start_dir"
+        return 1
+    fi
+
+    if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+        echo "Branch already exists: $branch_name"
+        cd "$start_dir"
+        return 1
+    fi
+
+    from_branch=$(git branch --show-current)
+    stash_msg="gcutbranch: unstaged work from ${from_branch:-HEAD}"
+
+    echo "📦 Stashing unstaged changes (${#unstaged_files[@]} file(s))..."
+    git stash push -m "$stash_msg" -- "${unstaged_files[@]}" || {
+        cd "$start_dir"
+        return 1
+    }
+    stash_ref="stash@{0}"
+
+    echo "🌿 Checking out $main_branch..."
+    git checkout "$main_branch" || {
+        echo "Checkout failed — your stash is safe ($stash_ref)."
+        cd "$start_dir"
+        return 1
+    }
+
+    echo "⬇️  Pulling $main_branch..."
+    git pull origin "$main_branch" || {
+        echo "Pull failed — your stash is safe ($stash_ref)."
+        cd "$start_dir"
+        return 1
+    }
+
+    echo "✂️  Creating branch $branch_name..."
+    git checkout -b "$branch_name" || {
+        echo "Branch creation failed — your stash is safe ($stash_ref)."
+        cd "$start_dir"
+        return 1
+    }
+
+    echo "📦 Applying stash ($stash_ref)..."
+    git stash apply "$stash_ref"
+    apply_status=$?
+
+    conflicted=("${(@f)$(git diff --name-only --diff-filter=U 2>/dev/null)}")
+    conflicted=(${conflicted:#})
+
+    if (( ${#conflicted[@]} > 0 )) || (( apply_status != 0 )); then
+        if (( ${#conflicted[@]} > 0 )); then
+            if ! _gcutbranch_resolve_conflicts; then
+                echo ""
+                echo "Stopped with conflicts. You are on $branch_name."
+                echo "Stash kept at $stash_ref — drop it after resolving: git stash drop $stash_ref"
+                git status --short
+                cd "$start_dir"
+                return 1
+            fi
+        elif (( apply_status != 0 )); then
+            echo "Stash apply failed — stash kept at $stash_ref (git stash list)."
+            cd "$start_dir"
+            return 1
+        fi
+    fi
+
+    git stash drop "$stash_ref"
+
+    echo ""
+    echo "Ready on $branch_name (from $main_branch). Review and commit when ready:"
+    git status --short
+    cd "$start_dir"
+}
+
+# After merging a PR: update main, switch to a feature branch, and rebase onto main.
+# Usage: gresume <feature-branch>
+function gresume() {
+    local feature_branch=$1
+    local start_dir=$PWD repo_root main_branch
+
+    if [[ -z "$feature_branch" ]]; then
+        echo "Usage: gresume <feature-branch>"
+        return 1
+    fi
+
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "Not a git repository"
+        return 1
+    }
+    cd "$repo_root" || return 1
+
+    if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git status --porcelain)" ]]; then
+        echo "Working tree not clean — commit or stash changes first."
+        cd "$start_dir"
+        return 1
+    fi
+
+    if git show-ref --verify --quiet refs/heads/main; then
+        main_branch=main
+    elif git show-ref --verify --quiet refs/heads/master; then
+        main_branch=master
+    else
+        echo "No main or master branch found."
+        cd "$start_dir"
+        return 1
+    fi
+
+    if ! git show-ref --verify --quiet "refs/heads/$feature_branch"; then
+        echo "Branch not found locally: $feature_branch"
+        echo "Fetch and create it with:"
+        echo "  git fetch origin $feature_branch && git checkout -b $feature_branch origin/$feature_branch"
+        cd "$start_dir"
+        return 1
+    fi
+
+    echo "🌿 Checking out $main_branch..."
+    git checkout "$main_branch" || {
+        cd "$start_dir"
+        return 1
+    }
+
+    echo "⬇️  Pulling $main_branch..."
+    git pull origin "$main_branch" || {
+        cd "$start_dir"
+        return 1
+    }
+
+    echo "🌿 Checking out $feature_branch..."
+    git checkout "$feature_branch" || {
+        cd "$start_dir"
+        return 1
+    }
+
+    echo "🔀 Rebasing onto $main_branch..."
+    if git rebase "$main_branch"; then
+        echo ""
+        echo "✅ $feature_branch rebased onto $main_branch."
+        git status --short
+    else
+        echo ""
+        echo "Rebase stopped — resolve conflicts, then: git rebase --continue"
+        echo "Or abort: git rebase --abort"
+        git status --short
+        cd "$start_dir"
+        return 1
+    fi
+
+    cd "$start_dir"
 }
 
 ### file system
