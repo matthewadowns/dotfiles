@@ -555,8 +555,9 @@ unset __conda_setup
 # alias python=/usr/local/bin/python3
 
 # Repos where update_repos pulls the current branch without checking out main/master/dev.
-# Match by repo name (skynet-docs) or org/repo (box/skynet-docs). Override in ~/.zshrc.local.
-typeset -ga UPDATE_REPOS_BRANCH_EXCEPTIONS=(skynet-docs)
+# Match by repo name (skynet-docs), org/repo (box/skynet-docs), or full path. Extend in ~/.zshrc.local.
+typeset -ga UPDATE_REPOS_BRANCH_EXCEPTIONS
+(( ${#UPDATE_REPOS_BRANCH_EXCEPTIONS[@]} )) || UPDATE_REPOS_BRANCH_EXCEPTIONS=(skynet-docs)
 
 # Function to update all GitHub repositories
 function update_repos() {
@@ -570,11 +571,14 @@ function update_repos() {
     local blocked_repo_paths=()
 
     _update_repos_is_branch_exception() {
-        local org_name=$1 repo_name=$2 key candidate
+        local org_name=$1 repo_name=$2 repo_path=$3
+        local key candidate
 
-        for key in "$repo_name" "$org_name/$repo_name"; do
+        for key in "$repo_name" "$org_name/$repo_name" "$repo_path"; do
+            [[ -z "$key" ]] && continue
             for candidate in "${UPDATE_REPOS_BRANCH_EXCEPTIONS[@]}"; do
-                [[ "$key" == "$candidate" ]] && return 0
+                [[ -z "$candidate" ]] && continue
+                [[ "${key:l}" == "${candidate:l}" ]] && return 0
             done
         done
         return 1
@@ -672,6 +676,10 @@ function update_repos() {
             continue
         }
 
+        local entry_branch=$(git branch --show-current)
+        local is_branch_exception=0
+        _update_repos_is_branch_exception "$org_name" "$repo_name" "$repo_path" && is_branch_exception=1
+
         # Drop .DS_Store-only noise (often tracked by others despite global gitignore)
         if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git status --porcelain)" ]; then
             if _update_repos_clean_ds_store_only "$repo_path"; then
@@ -701,8 +709,8 @@ function update_repos() {
         local target_branch=""
         local use_current_branch=0
 
-        if _update_repos_is_branch_exception "$org_name" "$repo_name"; then
-            target_branch=$(git branch --show-current)
+        if (( is_branch_exception )); then
+            target_branch=$entry_branch
             if [[ -z "$target_branch" ]]; then
                 echo "   ⏭️  Skipping: not on a named branch"
                 ((skipped_count++))
@@ -728,7 +736,7 @@ function update_repos() {
         fi
 
         if (( use_current_branch )); then
-            if _update_repos_is_branch_exception "$org_name" "$repo_name"; then
+            if (( is_branch_exception )); then
                 echo "   🌿 Keeping current branch: $target_branch (exception)"
             else
                 echo "   🌿 Pulling current branch: $target_branch"
@@ -752,6 +760,18 @@ function update_repos() {
             echo "   ❌ Failed to pull changes"
             ((error_count++))
             error_repos+=("$org_name/$repo_name (failed to pull changes)")
+        fi
+
+        if (( is_branch_exception )) && [[ -n "$entry_branch" ]]; then
+            local current_branch=$(git branch --show-current)
+            if [[ "$current_branch" != "$entry_branch" ]]; then
+                echo "   ↩️  Restoring branch: $entry_branch"
+                git checkout "$entry_branch" >/dev/null 2>&1 || {
+                    echo "   ❌ Failed to restore branch $entry_branch"
+                    ((error_count++))
+                    error_repos+=("$org_name/$repo_name (failed to restore $entry_branch)")
+                }
+            fi
         fi
     done < <(find "$github_dir" -type d -name ".git")
 
